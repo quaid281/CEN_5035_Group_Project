@@ -39,9 +39,10 @@ def generateImageName(name="UNCLASSIFIED"):
                                                 t.tm_min,
                                                 t.tm_sec))
 
-def captureImage(delay=0, capture_width=1920, capture_height=1080):
+def captureImage(cam=None, delay=0.0, capture_width=1920, capture_height=1080):
 
-    cam = cv2.VideoCapture(sci_cam_params(capture_width, capture_height), cv2.CAP_GSTREAMER)
+    if not cam:
+        cam = cv2.VideoCapture(sci_cam_params(capture_width, capture_height), cv2.CAP_GSTREAMER)
        
     if (delay):
         time.sleep(delay)         
@@ -49,6 +50,13 @@ def captureImage(delay=0, capture_width=1920, capture_height=1080):
     ret,frame = cam.read()
     s = generateImageName()
     cv2.imwrite(s, frame)
+
+
+def saveImage(img):
+    s = generateImageName()
+    cv2.imwrite(s, img)
+
+    return s
 
 
 if __name__ == "__main__":

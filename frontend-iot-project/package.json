@@ -1,0 +1,17 @@
+{
+  "name": "frontend-iot-project",
+  "version": "1.0.0",
+  "description": "Frontend to the  IOT Neural network project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cd angular-client && npm run build",
+    "start": "node app.js"
+  },
+  "author": "Eric Mesquita",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/storage": "^5.14.3",
+    "express": "^4.17.1"
+  }
+}

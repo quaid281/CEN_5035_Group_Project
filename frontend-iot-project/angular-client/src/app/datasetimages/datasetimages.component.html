@@ -1,0 +1,8 @@
+<span *ngIf="!datasetImages">No images available</span>
+
+<div class="card" *ngFor="let image of datasetImages">
+    <img src="{{image.publicUrl}}"> 
+    <div class="container">
+      <span>{{image.name}}</span> 
+    </div>
+</div>

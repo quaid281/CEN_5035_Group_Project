@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import cv2
 import time
@@ -43,11 +43,14 @@ def captureImage(cam=None, delay=0.0, capture_width=1920, capture_height=1080):
 
     if not cam:
         cam = cv2.VideoCapture(sci_cam_params(capture_width, capture_height), cv2.CAP_GSTREAMER)
-       
+        #cam = cv2.VideoCapture("v4l2src device=/dev/video0 ! videoconvert ! video/x-raw, format=BGR ! appsink", cv2.CAP_GSTREAMER)
+        #cam = cv2.VideoCapture(0)
     if (delay):
         time.sleep(delay)         
 
     ret,frame = cam.read()
+    print(ret)
+    print(frame)
     s = generateImageName()
     cv2.imwrite(s, frame)
 
@@ -62,5 +65,5 @@ def saveImage(img):
 if __name__ == "__main__":
     print("Capturing Photo in 5 seconds.")
 
-    captureImage(5, capture_width=480, capture_height=480)
+    captureImage(delay=5, capture_width=480, capture_height=480)
 

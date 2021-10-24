@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
@@ -13,9 +13,13 @@ import numpy as np
 
 sys.path.append("../cloud")
 sys.path.append("../camera")
+sys.path.append("../model")
 import cameraLib
 import gcp_upload
-
+import predictImage
+ 
+import time
+import math
 
 class VideoThread(QThread):
 
@@ -23,6 +27,10 @@ class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
 
     cam = cv2.VideoCapture(cameraLib.sci_cam_params(), cv2.CAP_GSTREAMER)
+
+    model = predictImage.loadModel()
+    classes = predictImage.loadClasses()
+    last_date = math.floor(time.time())
 
     def run(self):
         while True:
@@ -32,6 +40,18 @@ class VideoThread(QThread):
                 self.change_pixmap_signal.emit(img)
 
             self.img = img
+
+            self.date = math.floor(time.time())
+            
+             # Only predict once per second
+            if (self.date > self.last_date): 
+                self.predict = True
+
+            if (self.predict):
+                resize = cv2.resize(img, (150, 150), interpolation=cv2.INTER_CUBIC)
+                print(predictImage.predictImage(resize, self.model, self.classes))
+                self.last_date = self.date
+                self.predict = False
 
 
 class App(QWidget):

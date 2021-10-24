@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 import cv2
 
@@ -35,8 +35,16 @@ def nano_cam_params(
         
              
 cam = cv2.VideoCapture(nano_cam_params(), cv2.CAP_GSTREAMER)
+#cam = cv2.VideoCapture(0, cv2.CAP_V4L)
+#cam = cv2.VideoCapture(0)
+
+
+#cam = cv2.VideoCapture("nvarguscamerasrc ! nvvidconv ! video/x-raw, format=BGRx' ! videoconvert ! video/x-raw, format=(string)NV12 ! appsink", cv2.CAP_GSTREAMER)
+
+
 
 ret,frame = cam.read()
+print(frame)
 cv2.imshow("preview", frame)
 cv2.waitKey(0)
 cv2.imwrite("foo.jpg", frame)

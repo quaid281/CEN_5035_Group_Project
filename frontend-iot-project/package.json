@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cd angular-client && npm run build",
-    "start": "node app.js"
+    "clientbuild": "rm -rf app/views && cd angular-client && npm run build",
+    "start": "node server.js"
   },
   "author": "Eric Mesquita",
   "license": "ISC",

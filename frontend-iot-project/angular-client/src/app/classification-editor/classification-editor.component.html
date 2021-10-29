@@ -1,0 +1,11 @@
+<div *ngIf="image">
+    <img src="{{image.publicUrl}}"/>
+    <h4>Classification: {{image.classification}}</h4>
+    <div>
+        <label>Give a new classification if inaccurate: </label>
+        <input [(ngModel)]="image.classification" placeholder="classification" />
+    </div>
+      <button (click)="goBack()">Back</button>
+      <button (click)="save()">Save</button>
+</div>
+  

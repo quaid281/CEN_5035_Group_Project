@@ -1,8 +1,11 @@
+<h1>Dataset Images</h1>
 <span *ngIf="!datasetImages">No images available</span>
 
 <div class="card" *ngFor="let image of datasetImages">
-    <img src="{{image.publicUrl}}"> 
+  <!-- <a routerLink = "/classification/{{image.name}}"> -->
+    <img src="{{image.publicUrl}}" (click)="gotoClassification(image)"> 
     <div class="container">
-      <span>{{image.name}}</span> 
+      <span>{{image.classification}}</span> 
     </div>
+  <!-- </a> -->
 </div>

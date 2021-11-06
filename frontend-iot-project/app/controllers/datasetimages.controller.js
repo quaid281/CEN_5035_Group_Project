@@ -1,8 +1,8 @@
 const {Storage} = require('@google-cloud/storage');
 
-const bucketName = process.env.BUCKET_NAME;
 const keyFilename = 'app/config/service_account.json';
 const projectId = process.env.PROJECT_ID;
+const bucketName = process.env.BUCKET_NAME || `iot-project_${projectId}`;
 const storage = new Storage({projectId, keyFilename});
 
 exports.findAll = async (req, res) => {
@@ -22,13 +22,23 @@ exports.findAll = async (req, res) => {
 
 exports.findImage = async (req, res) => {
   const imagename = req.params.image;
-  const file = await storage.bucket(bucketName).file(imagename);
-  let image = {
-    name: file.name,
-    classification: file.name.substring(0, file.name.indexOf('-')),
-    publicUrl: `https://storage.googleapis.com/${bucketName}/${file.name}`
-  };
-  res.status(200).send(image);
+  try {
+    const file = await storage.bucket(bucketName).file(imagename);
+    const blobMetadata = await file.getMetadata();
+    const metadata = blobMetadata[0].metadata;
+    console.log('Metadata:' + metadata);
+    let image = {
+      name: file.name,
+      classification: file.name.substring(0, file.name.indexOf('-')),
+      publicUrl: `https://storage.googleapis.com/${bucketName}/${file.name}`,
+      metadata: metadata
+    };
+    res.status(200).send(image);
+  }
+  catch {
+    res.status(404).send({});
+  }
+  
 }
 
 exports.updateImage = async (req, res) => {

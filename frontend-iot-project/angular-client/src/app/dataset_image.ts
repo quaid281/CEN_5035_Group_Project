@@ -4,4 +4,5 @@ export class DatasetImage {
     classification: string;
     networkTags?: string;
     userTags?: string;
+    metadata?: any;
   }

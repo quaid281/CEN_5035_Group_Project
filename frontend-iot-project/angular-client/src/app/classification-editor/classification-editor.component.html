@@ -1,3 +1,6 @@
+<div *ngIf="!image">
+    That image was not found, or there was an issue retrieving it
+</div>
 <div *ngIf="image">
     <img src="{{image.publicUrl}}"/>
     <h4>Classification: {{image.classification}}</h4>
@@ -5,6 +8,14 @@
         <label>Give a new classification if inaccurate: </label>
         <input [(ngModel)]="image.classification" placeholder="classification" />
     </div>
+    <h5 *ngIf="image.metadata">
+        Metadata from neural network:
+    </h5>
+    <ul *ngIf="image.metadata">
+        <li *ngFor="let item of image.metadata | keyvalue">
+            <b>{{item.key}}</b> : {{item.value}}
+        </li>
+    </ul>
       <button (click)="goBack()">Back</button>
       <button (click)="save()">Save</button>
 </div>

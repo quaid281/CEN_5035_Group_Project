@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { DatasetImage } from '../dataset_image';
 import { DatasetimageService } from '../datasetimage.service'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-datasetimages',
@@ -8,21 +9,20 @@ import { DatasetimageService } from '../datasetimage.service'
   styleUrls: ['./datasetimages.component.css']
 })
 export class DatasetimagesComponent implements OnInit {
-  datasetImages: DatasetImage[];
+  datasetImages: DatasetImage[] = null;
    
-  //constructor() {}
-  constructor(private datasetimageservice: DatasetimageService) { }
+  constructor(private datasetimageservice: DatasetimageService, private router: Router) { }
 
   ngOnInit(): void {
-    // let images: DatasetImage[] = [{
-    //   name: 'testimage',
-    //   publicUrl: 'https://storage.googleapis.com/eric-bucket-test/438.png'
-    // }];
     console.log("Initialized image component")
     this.datasetimageservice.getImagesFromCloud().subscribe(images => {
       this.datasetImages = images;
-      console.log(`Images list: ${images}`);
     });
+  }
+
+  gotoClassification(image: DatasetImage): void {
+    const link = ['/classification', image.name];
+    this.router.navigate(link);
   }
 
 }

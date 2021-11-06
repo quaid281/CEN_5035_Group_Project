@@ -3,12 +3,13 @@ import { Observable, of } from 'rxjs';
 import { DatasetImage } from './dataset_image';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
+import { Data } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DatasetimageService {
-  imagesUrl = "/cloudimages";
+  imagesUrl = "/api/datasetimages";
 
   constructor(private http: HttpClient) { }
 
@@ -18,20 +19,27 @@ export class DatasetimageService {
       tap(_ => console.log('fetched images')),
       catchError(this.handleError<DatasetImage[]>('getImagesFromCloud ', []))
     );
-    // let images: DatasetImage[] = [{
-    //   name: 'testimage',
-    //   publicUrl: 'https://storage.googleapis.com/eric-bucket-test/438.png'
-    // }];
-    // return of(images);
+  }
+
+  getImage(image: string): Observable<DatasetImage> {
+    const url = this.imagesUrl + '/' + image;
+    return this.http.get<DatasetImage>(url)
+    .pipe(
+      tap(_ => console.log('fetched images')),
+      catchError(this.handleError<DatasetImage>('getImagesFromCloud ', null))
+    );
+  }
+
+  save(image: DatasetImage): Observable<DatasetImage> {
+    if (image.name) {
+      return this.http.put<DatasetImage>(this.imagesUrl, image);
+    }
+    return this.http.post<DatasetImage>(this.imagesUrl, image);
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-  
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-  
-      // TODO: better job of transforming error for user consumption
+      console.error(error);
       console.log(`${operation} failed: ${error.message}`);
   
       // Let the app keep running by returning an empty result.

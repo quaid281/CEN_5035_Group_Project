@@ -1,6 +1,7 @@
-export interface DatasetImage {
+export class DatasetImage {
     publicUrl: string;
     name: string;
+    classification: string;
     networkTags?: string;
     userTags?: string;
   }

@@ -26,7 +26,7 @@ class VideoThread(QThread):
     # Thread needs a signal whenever a new frame has been read from the camera
     change_pixmap_signal = pyqtSignal(np.ndarray)
 
-    changeImgLabel = pyqtSignal(str)
+    changeImgLabel = pyqtSignal(tuple)
 
     cam = cv2.VideoCapture(cameraLib.sci_cam_params(), cv2.CAP_GSTREAMER)
 
@@ -56,7 +56,7 @@ class VideoThread(QThread):
             if (self.predict):
                 resize = cv2.resize(img, (150, 150), interpolation=cv2.INTER_CUBIC)
                 prediction = predictImage.predictImage(resize, self.model, self.classes)
-                self.changeImgLabel.emit(prediction[0])
+                self.changeImgLabel.emit(prediction)
                 self.last_date = self.date
                 self.predict = False
 
@@ -89,9 +89,13 @@ class App(QWidget):
         self.uploadImage.clicked.connect(self.upload_last_image)
         self.deleteLocalImages = QPushButton("Delete Local Images", self)
         self.deleteLocalImages.clicked.connect(self.deleteImages)
+        self.showImage = QPushButton("Show Last Photo", self)
+        self.showImage.clicked.connect(self.showLastPhoto)
 
-        self.currentImageLabel = QLabel(self)
+        self.currentImageLabel = QLabel("Initializing CNN Model")
         self.thread.changeImgLabel.connect(self.setImageLabel)
+        self.currentImageWeights = {}
+
         # Vbox for Video
         vbox = QVBoxLayout()
         vbox.addWidget(self.image_label)
@@ -104,6 +108,7 @@ class App(QWidget):
 
         hboxBottom = QHBoxLayout()
         hboxBottom.addWidget(self.deleteLocalImages)
+        hboxBottom.addWidget(self.showImage)
 
         vbox.addLayout(hboxTop)
         vbox.addLayout(hboxBottom)
@@ -125,7 +130,8 @@ class App(QWidget):
 
     def setImageLabel(self, label):
         """Update the image with predicted label"""
-        self.currentImageLabel.setText(label)
+        self.currentImageLabel.setText(label[0])
+        self.currentImageWeights = label[1]
 
 
     def convert_cv_qt(self, cv_img):
@@ -139,7 +145,8 @@ class App(QWidget):
 
  
     def save_image(self):
-        self.lastPhoto = cameraLib.saveImage(self.thread.img, "UNCLASSIFIED")
+        self.lastPhoto = cameraLib.saveImage(self.thread.img, self.currentImageLabel.text())
+        self.lastMetaData = self.currentImageWeights
 
 
     def upload_last_image(self):
@@ -147,12 +154,17 @@ class App(QWidget):
             gcp_upload.upload_blob("iot-project_healthy-cubist-326609",
                                     "/usr/share/CEN5035/service_account.json",
                                     self.lastPhoto,
-                                    self.lastPhoto)
+                                    self.lastPhoto,
+                                    self.lastMetaData)
 
 
     def deleteImages(self):
         os.system("rm -f *.jpg")
 
+
+    def showLastPhoto(self):
+        if (self.lastPhoto):
+            os.system("xdg-open ./%s" % self.lastPhoto)
 
     # Shutdown camera when window is closed
     def closeEvent(self, event):

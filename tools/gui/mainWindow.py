@@ -85,7 +85,7 @@ class App(QWidget):
 
         self.takeImage = QPushButton("Take Photo", self)
         self.takeImage.clicked.connect(self.save_image)
-        self.uploadImage = QPushButton("Upload Photos", self)
+        self.uploadImage = QPushButton("Upload Last Photo", self)
         self.uploadImage.clicked.connect(self.upload_last_image)
         self.deleteLocalImages = QPushButton("Delete Local Images", self)
         self.deleteLocalImages.clicked.connect(self.deleteImages)

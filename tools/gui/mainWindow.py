@@ -32,8 +32,12 @@ class VideoThread(QThread):
     classes = predictImage.loadClasses()
     last_date = math.floor(time.time())
 
+    keepOpen = True
     def run(self):
-        while True:
+
+        self.predict = False
+
+        while self.keepOpen:
             ret, img = self.cam.read()
             if ret:
                 # Emit image so we can grab with update_image
@@ -52,6 +56,10 @@ class VideoThread(QThread):
                 print(predictImage.predictImage(resize, self.model, self.classes))
                 self.last_date = self.date
                 self.predict = False
+
+    def close(self):
+        self.cam.release()
+        self.keepOpen = False
 
 
 class App(QWidget):
@@ -121,6 +129,10 @@ class App(QWidget):
                                     self.lastPhoto,
                                     self.lastPhoto)
 
+
+    # Shutdown camera when window is closed
+    def closeEvent(self, event):
+        self.thread.close()
    
 if __name__=="__main__":
     app = QApplication(sys.argv)

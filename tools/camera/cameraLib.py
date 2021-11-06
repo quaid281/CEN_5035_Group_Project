@@ -55,8 +55,8 @@ def captureImage(cam=None, delay=0.0, capture_width=1920, capture_height=1080):
     cv2.imwrite(s, frame)
 
 
-def saveImage(img):
-    s = generateImageName()
+def saveImage(img, name):
+    s = generateImageName(name)
     cv2.imwrite(s, img)
 
     return s

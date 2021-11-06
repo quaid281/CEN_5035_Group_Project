@@ -26,6 +26,8 @@ class VideoThread(QThread):
     # Thread needs a signal whenever a new frame has been read from the camera
     change_pixmap_signal = pyqtSignal(np.ndarray)
 
+    changeImgLabel = pyqtSignal(str)
+
     cam = cv2.VideoCapture(cameraLib.sci_cam_params(), cv2.CAP_GSTREAMER)
 
     model = predictImage.loadModel()
@@ -53,9 +55,12 @@ class VideoThread(QThread):
 
             if (self.predict):
                 resize = cv2.resize(img, (150, 150), interpolation=cv2.INTER_CUBIC)
-                print(predictImage.predictImage(resize, self.model, self.classes))
+                prediction = predictImage.predictImage(resize, self.model, self.classes)
+                self.changeImgLabel.emit(prediction[0])
                 self.last_date = self.date
                 self.predict = False
+
+
 
     def close(self):
         self.cam.release()
@@ -82,16 +87,26 @@ class App(QWidget):
         self.takeImage.clicked.connect(self.save_image)
         self.uploadImage = QPushButton("Upload Photos", self)
         self.uploadImage.clicked.connect(self.upload_last_image)
+        self.deleteLocalImages = QPushButton("Delete Local Images", self)
+        self.deleteLocalImages.clicked.connect(self.deleteImages)
 
+        self.currentImageLabel = QLabel(self)
+        self.thread.changeImgLabel.connect(self.setImageLabel)
         # Vbox for Video
         vbox = QVBoxLayout()
         vbox.addWidget(self.image_label)
+        vbox.addWidget(self.currentImageLabel)
 
         # Hbox for buttons
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.takeImage)
-        hbox.addWidget(self.uploadImage)
-        vbox.addLayout(hbox)
+        hboxTop = QHBoxLayout()
+        hboxTop.addWidget(self.takeImage)
+        hboxTop.addWidget(self.uploadImage)
+
+        hboxBottom = QHBoxLayout()
+        hboxBottom.addWidget(self.deleteLocalImages)
+
+        vbox.addLayout(hboxTop)
+        vbox.addLayout(hboxBottom)
 
         self.setLayout(vbox)
 
@@ -108,6 +123,11 @@ class App(QWidget):
         self.image_label.setPixmap(qt_img)
 
 
+    def setImageLabel(self, label):
+        """Update the image with predicted label"""
+        self.currentImageLabel.setText(label)
+
+
     def convert_cv_qt(self, cv_img):
         """Convert from an opencv image to QPixmap"""
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
@@ -119,7 +139,7 @@ class App(QWidget):
 
  
     def save_image(self):
-        self.lastPhoto = cameraLib.saveImage(self.thread.img)
+        self.lastPhoto = cameraLib.saveImage(self.thread.img, "UNCLASSIFIED")
 
 
     def upload_last_image(self):
@@ -128,6 +148,10 @@ class App(QWidget):
                                     "/usr/share/CEN5035/service_account.json",
                                     self.lastPhoto,
                                     self.lastPhoto)
+
+
+    def deleteImages(self):
+        os.system("rm -f *.jpg")
 
 
     # Shutdown camera when window is closed

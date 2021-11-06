@@ -15,8 +15,9 @@ def predictImage(img, model, classes):
     image = img_to_array(img)
     image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))
     ypred = model.predict(image)
+    predWeights = {'paper':ypred[0][0], 'rock':ypred[0][1], 'scissors':ypred[0][2]}
 
-    return classes[np.argmax(ypred)]
+    return classes[np.argmax(ypred)], predWeights
 
 
 def loadModel():
